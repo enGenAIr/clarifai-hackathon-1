@@ -1,4 +1,4 @@
-## Command to run /// python -m streamlit run git_code.py   
+## Command to run /// python -m streamlit run index.py   
 
 import streamlit as st
 from PIL import Image, ImageFilter
