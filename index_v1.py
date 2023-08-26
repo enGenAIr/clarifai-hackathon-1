@@ -5,8 +5,7 @@ from PIL import Image, ImageFilter
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
-import base64
-import io
+import os
 # Clarifai constants
 USER_ID = 'umar05'
 PAT = '04ad0503aff5443fb2e09f6a3c74950e'
@@ -20,6 +19,8 @@ uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 image = Image
 
 if uploaded_file is not None:
+    if not os.path.exists("uploaded_images"):
+        os.makedirs("uploaded_images")
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image.', use_column_width=True)
     image_name = uploaded_file.name
@@ -123,5 +124,3 @@ if RAW_TEXT:
         text_after_colon = generated_text.split(":", 1)[-1].strip()
         # Display the image with the generated text
         st.image(image, caption=text_after_colon)
-
-
