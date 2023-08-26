@@ -1,7 +1,7 @@
-### python -m streamlit run index_v1.py
+## python -m streamlit run final_code.py
 
 import streamlit as st
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageDraw,ImageFont,ImageColor
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
@@ -36,6 +36,23 @@ class ImageProcessor:
     def resize(self, width, height):
         self.image = self.image.resize((width, height))
 
+    def add_text(self, text, position, font_color, bg_color=None, font_size=20):
+        draw = ImageDraw.Draw(self.image)
+        print(font_size)
+        try:
+            font = ImageFont.truetype("Arial.ttf", font_size)
+        except IOError:
+            font = ImageFont.load_default()
+            st.warning("Using default font. Font size will not be adjustable.")
+
+        if bg_color:
+            text_width, text_height = draw.textsize(text, font=font)
+            draw.rectangle([position, (position[0] + text_width, position[1] + text_height)], fill=bg_color)
+        
+        draw.text(position, text, fill=font_color, font=font)
+
+    def save(self, path):
+        self.image.save(path)
 
 class ClarifaiAPI:
     def __init__(self):
@@ -125,17 +142,44 @@ def main():
 
         text_option = st.selectbox(
             'What kind of text would you like to generate?',
-            ('Story', 'Poem')
+            ('Phrase', 'Quote')
         )
+
+        text_position = st.selectbox(
+            'Where would you like the text to appear?',
+            ('Top Left', 'Top Right', 'Bottom Left', 'Bottom Right', 'Center')
+        )
+        # Adding style options for the user
+        font_size = st.slider('Choose font size:', 10, 60, 20)
+        font_color = st.color_picker('Choose font color:', '#ffffff')
+        bg_color_option = st.checkbox('Add background color to text?')
+        bg_color = None
+        if bg_color_option:
+            bg_color = st.color_picker('Choose text background color:', '#000000')
 
         if st.button('Submit'):
             api = ClarifaiAPI()
             tags = api.get_image_tags(image_path)
             if tags:
                 tags_str = ' '.join(tags[:2])
-                raw_text = f'generate me a {text_option} for "{tags_str}"'
+                raw_text = f'generate me a short {text_option} for "{tags_str}"'
                 generated_text = api.get_text(raw_text)
-                st.image(processor.image, caption=generated_text)
+                
+                position_map = {
+                    'Top Left': (10, 10),
+                    'Top Right': (processor.image.width - 200, 10),
+                    'Bottom Left': (10, processor.image.height - 30),
+                    'Bottom Right': (processor.image.width - 200, processor.image.height - 30),
+                    'Center': ((processor.image.width - 200) // 2, (processor.image.height - 30) // 2)
+                }
+                
+                processor.add_text(generated_text, position_map[text_position], font_color, bg_color)
+
+                # Save the modified image
+                modified_image_path = f'uploaded_images/{image_name_without_extension}_modified.jpg'
+                processor.save(modified_image_path)
+
+                st.image(modified_image_path, caption='Image with Text.')
 
 
 if __name__ == "__main__":
