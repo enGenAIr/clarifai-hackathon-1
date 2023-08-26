@@ -4,7 +4,9 @@ from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 import os
+import dotenv
 
+dotenv.load_dotenv()
 class ImageStoryGenerator:
     def __init__(self):
         self.USER_ID = os.getenv("USER_ID")
