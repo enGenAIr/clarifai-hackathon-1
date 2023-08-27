@@ -264,6 +264,9 @@ def main():
                 processor.save(modified_image_path)
 
                 st.image(modified_image_path, caption='Final Image')
+                with open(modified_image_path, 'rb') as f:
+                    modified_image_bytes = f.read()
+                st.download_button('Download Modified Image', data=modified_image_bytes, file_name='modified_image.jpg')
             else:
                 st.error("Failed to generate text. Please try again.")
 
