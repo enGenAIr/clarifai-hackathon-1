@@ -17,7 +17,7 @@ load_dotenv()
 # Constants
 USER_ID = os.getenv("USER_ID")
 PAT = os.getenv("PAT")
-APP_ID = os.getenv("APP_ID")
+APP_ID = "my-first-application-ryesqk"
 WORKFLOW_ID_IMAGE = os.getenv("WORKFLOW_ID_IMAGE")
 WORKFLOW_ID_TEXT = os.getenv("WORKFLOW_ID_TEXT")
 metadata = (('authorization', 'Key ' + PAT),)
