@@ -1,7 +1,7 @@
 ## python -m streamlit run final_code.py
 
 import streamlit as st
-from PIL import Image, ImageFilter, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageFilter, ImageDraw, ImageFont, ImageOps, ImageEnhance
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
@@ -42,7 +42,8 @@ class ImageProcessor:
             'MAX_FILTER': ImageFilter.MaxFilter(size=3),
             'MIN_FILTER': ImageFilter.MinFilter(size=3),
             'SEPIA': 'SEPIA',
-            'GRAYSCALE': 'GRAYSCALE'
+            'GRAYSCALE': 'GRAYSCALE',
+            'POP ART' : 'POP ART'
         }
 
         if filter_option in filters:
@@ -59,6 +60,11 @@ class ImageProcessor:
                 img.putdata(new_pixels)
                 self.image = img
 
+            elif filter_option == 'POP ART':
+                pop_art = self.image.convert("RGB")
+                enhancer = ImageEnhance.Color(pop_art)
+                pop_art = enhancer.enhance(4.0) 
+                self.image = pop_art
             elif filter_option == 'GRAYSCALE':
                 grayscale = ImageOps.grayscale(self.image)
                 self.image = grayscale.convert("RGB")
@@ -71,12 +77,24 @@ class ImageProcessor:
             self.image = ImageBorder.basic_polaroid(self.image)
         elif border_type == 'Vintage Frame':
             self.image = ImageBorder.vintage_frame(self.image)
+        elif border_type == 'Wooden Frame':
+            self.image = ImageBorder.wooden_frame(self.image)
+        elif border_type == 'Bohemian Bliss Frame':
+            self.image = ImageBorder.bohemian_bliss_frame(self.image)
         elif border_type == 'Filmstrip Border':
             self.image = ImageBorder.filmstrip_border(self.image, text)
         elif border_type == 'Grunge Border':
             self.image = ImageBorder.grunge_border(self.image, text)
+        elif border_type == 'Pixel Frame':
+            self.image = ImageBorder.pixel_frame(self.image)
         elif border_type == 'Framed Border':
-            self.image = ImageBorder.framed_border(self.image, text)
+            self.image = ImageBorder.framed_border(self.image)
+        elif border_type == 'Cartoon Frame':
+            self.image = ImageBorder. cartoon_frame(self.image)
+        elif border_type == 'Bubble Frame':
+            self.image = ImageBorder. bubble_frame(self.image)
+        elif border_type == 'Glitch Frame':
+            self.image = ImageBorder. glitch_frame(self.image)
 
 
     def resize(self, width, height):
@@ -89,31 +107,32 @@ class ImageProcessor:
             font = ImageFont.truetype("Arial.ttf", font_size)
         except IOError:
             font = ImageFont.load_default()
-            st.warning("Using default font. Font size will not be adjustable.")
+            print("Using default font. Font size will not be adjustable.")  # using print instead of st.warning for this example
 
+        lines = textwrap.wrap(text, width=60)
+        total_text_height = sum([font.getsize(line)[1] for line in lines])
         
-        wrapped_text = textwrap.fill(text, width=60)
-
-        text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
         position_map = {
-        'Top Left': (10, 10),
-        'Top Center': ((self.image.width - text_width) // 2, 10),
-        'Top Right': (self.image.width - text_width - 10, 10),
-        'Bottom Left': (10, self.image.height - text_height - 10),
-        'Bottom Center': ((self.image.width - text_width) // 2, self.image.height - text_height - 10 - 45),
-        'Bottom Right': (self.image.width - text_width - 10, self.image.height - text_height - 10),
-        'Center': ((self.image.width - text_width) // 2, (self.image.height - text_height) // 2)
+            'Top Left': (10, 10),
+            'Top Center': (self.image.width // 2, 10),
+            'Top Right': (self.image.width - 10, 10),
+            'Bottom Left': (10, self.image.height - total_text_height - 10),
+            'Bottom Center': (self.image.width // 2, self.image.height - total_text_height - 10 - 45),
+            'Bottom Right': (self.image.width - 10, self.image.height - total_text_height - 10),
+            'Center': (self.image.width // 2, (self.image.height - total_text_height) // 2)
         }
 
-        position = position_map[position_option]
-
-        if bg_color:
-            draw.rectangle([position, (position[0] + text_width, position[1] + text_height)], fill=bg_color)
-
-        draw.text(position, wrapped_text, fill=font_color, font=font)
-
+        base_x, base_y = position_map[position_option]
+        for line in lines:
+            line_bbox = draw.textbbox((0, 0), line, font=font)
+            line_width = line_bbox[2] - line_bbox[0]
+            line_height = line_bbox[3] - line_bbox[1]
+            x = base_x - (line_width // 2)
+            y = base_y
+            if bg_color:
+                draw.rectangle([x, y, x + line_width, y + line_height], fill=bg_color)
+            draw.text((x, y), line, fill=font_color, font=font)
+            base_y += line_height
     
     def save(self, path):
         self.image.save(path)
@@ -175,12 +194,11 @@ class ClarifaiAPI:
         if len(split_result) > 1:
             text_data = split_result[-1].strip()
 
-        text_data = re.search(r'"([^"]+)"', text_data)
-        if text_data:
-            text_data = text_data.group(1)
+        text= re.search(r'"([^"]+)"', text_data)
+        if text:
+            text_data = text.group(1)
         else:
-            st.warning("No inverted data found in the response.")
-            return ""
+            return text_data
         
         return text_data
     
@@ -209,7 +227,7 @@ def main():
         filter_option = st.sidebar.selectbox(
             'Apply Filter:',
             ('Original', 'BLUR', 'CONTOUR', 'DETAIL', 'EDGE_ENHANCE', 'EDGE_ENHANCE_MORE',
-             'EMBOSS', 'SHARPEN', 'SMOOTH', 'SMOOTH_MORE', 'GAUSSIAN_BLUR', 'MEDIAN_FILTER', 'MAX_FILTER', 'MIN_FILTER','SEPIA','GRAYSCALE')
+             'EMBOSS', 'SHARPEN', 'SMOOTH', 'SMOOTH_MORE', 'GAUSSIAN_BLUR', 'MEDIAN_FILTER', 'MAX_FILTER', 'MIN_FILTER','SEPIA','GRAYSCALE','POP ART')
         )
         processor.apply_filter(filter_option)
 
@@ -225,7 +243,7 @@ def main():
         border_option = st.sidebar.selectbox(
             'Do You Wanna Apply Border?',
             ('Original', 'Polaroids',
-             'Vintage Frame', 'Filmstrip Border', 'Grunge Border', 'Framed Border' )
+             'Vintage Frame', 'Filmstrip Border', 'Grunge Border', 'Framed Border','Glitch Frame' ,'Wooden Frame','Cartoon Frame' , 'Pixel Frame', 'Bubble Frame')
         )
 
         if border_option != 'Original':
@@ -238,7 +256,7 @@ def main():
         st.sidebar.subheader("Text Options")
         text_option = st.sidebar.selectbox(
             'Text Type:',
-            ('Life Quote', 'Inspirational Quote','Funny Quote','Love Quote','Birthday Quote','Friendship Quote','Short Poem')
+            ('Life Quote', 'Inspirational Quote','Funny Quote','Love Quote','Birthday Quote','Friendship Quote', 'Two Line Poetry')
         )
         
         text_position = st.sidebar.selectbox(
@@ -260,7 +278,7 @@ def main():
                 tags_str = ' '.join(tags[:2])
                 raw_text = f'generate me a tiny {text_option} for "{tags_str} must only be a few words"'
                 generated_text = api.get_text(raw_text)
-                processor.add_text(generated_text, text_position, font_color, bg_color)
+                processor.add_text(generated_text, text_position, font_color, bg_color, font_size)
 
                 # Save the modified image
                 modified_image_path = f'uploaded_images/{image_name_without_extension}_modified.jpg'
