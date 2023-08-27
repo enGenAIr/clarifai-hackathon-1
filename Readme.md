@@ -1,7 +1,5 @@
 # PoeticaPic - Enhancing Your Memories with Artistic Flair
 
-![PoeticaPic Logo](blob:null/7421ee85-6af9-4a42-b148-ad000998df0f)
-
 Welcome to the PoeticaPic project! We're excited to have you contribute to our mission of creating memorable experiences through images and poetry. Below, you'll find detailed information on how to contribute, along with a live demo section to explore the magic of PoeticaPic.
 
 ## Table of Contents
