@@ -1,7 +1,8 @@
+import random
 import textwrap
 from turtle import st
 
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageDraw, ImageFont
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageDraw, ImageFont, ImageStat
 from ImageBorder import ImageBorder
 import numpy as np
 
@@ -146,29 +147,59 @@ class ImageProcessor:
         elif filter_name == "Solarize":
             solarized = ImageOps.solarize(self.image, threshold=170)
             return solarized
+        elif filter_name == "Vintage Blue":
+            vintage_blue_filter = self.image.copy()
 
+            for y in range(vintage_blue_filter.height):
+                for x in range(vintage_blue_filter.width):
+                    r, g, b = vintage_blue_filter.getpixel((x, y))
+                    new_r = int(0.6 * r)
+                    new_g = int(0.8 * g)
+                    new_b = int(1.2 * b)
+                    vintage_blue_filter.putpixel((x, y), (new_r, new_g, new_b))
+
+            return vintage_blue_filter
+        elif filter_name == "Charcoal Drawn":
+            neon_glow_filter = self.image.filter(ImageFilter.FIND_EDGES)
+
+            neon_glow_filter = ImageEnhance.Brightness(neon_glow_filter).enhance(2.0)
+            neon_glow_filter = ImageEnhance.Contrast(neon_glow_filter).enhance(2.0)
+
+            return neon_glow_filter
         elif filter_name == "Pop Art":
             pop_art = self.image.convert("RGB")
             enhancer = ImageEnhance.Color(pop_art)
             pop_art = enhancer.enhance(4.0)  # Adjust this for stronger or weaker effect
             return pop_art
-        elif filter_name == "Lomo":
-            lomo = self.image.convert("RGB")
-            enhancer = ImageEnhance.Color(lomo)
-            lomo = enhancer.enhance(1.5)
-            wide = lomo.width
-            high = lomo.height
-            pixels = lomo.load()
-            for y in range(high):
-                for x in range(wide):
+        elif filter_name == "Raindrop":
+            raindrops_filter = self.image.copy()
+
+            width, height = raindrops_filter.size
+            pixels = raindrops_filter.load()
+
+            for y in range(height):
+                for x in range(width):
                     r, g, b = pixels[x, y]
-                    tr = int(r * 0.9)
-                    tg = int(g * 1.1)
-                    if tg > 255:
-                        tg = 255
-                    tb = b
-                    pixels[x, y] = tr,tg,tb
-            return lomo
+                    if random.random() < 0.1:  # Adjust this probability for more or fewer raindrops
+                        brightness = random.randint(100, 150)  # Adjust brightness level
+                        pixels[x, y] = (brightness, brightness, brightness)
+
+            return raindrops_filter
+        elif filter_name == "Sketch":
+            sketch_filter = self.image.filter(ImageFilter.CONTOUR)
+            return sketch_filter
+        elif filter_name == "Pixel Art":
+            pixel_art_filter = self.image.copy()
+
+            pixel_size = 10  # Adjust this value for pixel size
+            pixel_art_filter = pixel_art_filter.resize((pixel_art_filter.width // pixel_size,
+                                                        pixel_art_filter.height // pixel_size),
+                                                       Image.NEAREST)
+            pixel_art_filter = pixel_art_filter.resize((pixel_art_filter.width * pixel_size,
+                                                        pixel_art_filter.height * pixel_size),
+                                                       Image.NEAREST)
+
+            return pixel_art_filter
         else:
             raise ValueError("Filter not implemented!")
     def resize(self, width, height):

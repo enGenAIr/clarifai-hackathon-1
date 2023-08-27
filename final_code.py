@@ -104,7 +104,7 @@ def main():
         st.sidebar.write('Select from a variety of filters to enhance your image.')
         filter_option = st.sidebar.selectbox(
             'Which filter would you like to apply?',
-            ('Original', 'Blur', 'Black & White', 'Vignette', 'Sepia', 'Pop Art',)
+            ('Original','Blur','Raindrop','Black & White', 'Vignette', 'Sepia','Sketch' ,'Pop Art','Vintage Blue','Charcoal Drawn', 'Pixel Art')
         )
         if filter_option != 'Original':
             processor.apply_filter(filter_option)
