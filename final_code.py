@@ -107,32 +107,53 @@ class ImageProcessor:
             font = ImageFont.truetype("Arial.ttf", font_size)
         except IOError:
             font = ImageFont.load_default()
-            print("Using default font. Font size will not be adjustable.")  # using print instead of st.warning for this example
-
-        lines = textwrap.wrap(text, width=60)
-        total_text_height = sum([font.getsize(line)[1] for line in lines])
+            print("Using default font. Font size will not be adjustable.")
         
-        position_map = {
-            'Top Left': (10, 10),
-            'Top Center': (self.image.width // 2, 10),
-            'Top Right': (self.image.width - 10, 10),
-            'Bottom Left': (10, self.image.height - total_text_height - 10),
-            'Bottom Center': (self.image.width // 2, self.image.height - total_text_height - 10 - 45),
-            'Bottom Right': (self.image.width - 10, self.image.height - total_text_height - 10),
-            'Center': (self.image.width // 2, (self.image.height - total_text_height) // 2)
-        }
+        lines = textwrap.wrap(text, width=60)
+        
+        if 'Center' in position_option:
+            lines = textwrap.wrap(text, width=60)
+            total_text_height = sum([draw.textbbox((0, 0), line, font=font)[3] for line in lines])
+            
+            position_map = {
+                'Top Center': (self.image.width // 2, 10),
+                'Bottom Center': (self.image.width // 2, self.image.height - total_text_height - 10 - 20),
+                'Center': (self.image.width // 2, (self.image.height - total_text_height) // 2)
+            }
 
-        base_x, base_y = position_map[position_option]
-        for line in lines:
-            line_bbox = draw.textbbox((0, 0), line, font=font)
-            line_width = line_bbox[2] - line_bbox[0]
-            line_height = line_bbox[3] - line_bbox[1]
-            x = base_x - (line_width // 2)
-            y = base_y
+            base_x, base_y = position_map[position_option]
+            for line in lines:
+                line_bbox = draw.textbbox((0, 0), line, font=font)
+                line_width = line_bbox[2] - line_bbox[0]
+                line_height = line_bbox[3] - line_bbox[1]
+                x = base_x - (line_width // 2)
+                y = base_y
+                if bg_color:
+                    draw.rectangle([x, y, x + line_width, y + line_height], fill=bg_color)
+                draw.text((x, y), line, fill=font_color, font=font)
+                base_y += line_height
+            lines = textwrap.wrap(text, width=60)
+        
+        else:
+            wrapped_text = "\n".join(lines)
+
+            text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+
+            position_map = {
+                'Top Left': (10, 10),
+                'Top Right': (self.image.width - text_width - 10, 10),
+                'Bottom Left': (10, self.image.height - text_height - 10),
+                'Bottom Right': (self.image.width - text_width - 10, self.image.height - text_height - 10)
+            }
+
+            base_x, base_y = position_map[position_option]
+
+            
             if bg_color:
-                draw.rectangle([x, y, x + line_width, y + line_height], fill=bg_color)
-            draw.text((x, y), line, fill=font_color, font=font)
-            base_y += line_height
+                draw.rectangle([base_x, base_y, base_x + text_width, base_y + text_height], fill=bg_color)
+            draw.text((base_x, base_y), wrapped_text, fill=font_color, font=font)
     
     def save(self, path):
         self.image.save(path)
