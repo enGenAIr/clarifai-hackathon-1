@@ -91,7 +91,9 @@ class ImageProcessor:
             font = ImageFont.load_default()
             st.warning("Using default font. Font size will not be adjustable.")
 
-        wrapped_text = textwrap.fill(text, width=30)
+        
+        wrapped_text = textwrap.fill(text, width=60)
+
         text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
@@ -100,7 +102,7 @@ class ImageProcessor:
         'Top Center': ((self.image.width - text_width) // 2, 10),
         'Top Right': (self.image.width - text_width - 10, 10),
         'Bottom Left': (10, self.image.height - text_height - 10),
-        'Bottom Center': ((self.image.width - text_width) // 2, self.image.height - text_height - 10),
+        'Bottom Center': ((self.image.width - text_width) // 2, self.image.height - text_height - 10 - 45),
         'Bottom Right': (self.image.width - text_width - 10, self.image.height - text_height - 10),
         'Center': ((self.image.width - text_width) // 2, (self.image.height - text_height) // 2)
         }
@@ -109,7 +111,7 @@ class ImageProcessor:
 
         if bg_color:
             draw.rectangle([position, (position[0] + text_width, position[1] + text_height)], fill=bg_color)
-        
+
         draw.text(position, wrapped_text, fill=font_color, font=font)
 
     
@@ -236,8 +238,9 @@ def main():
         st.sidebar.subheader("Text Options")
         text_option = st.sidebar.selectbox(
             'Text Type:',
-            ('Phrase', 'Quote')
+            ('Life Quote', 'Inspirational Quote','Funny Quote','Love Quote','Birthday Quote','Friendship Quote','Short Poem')
         )
+        
         text_position = st.sidebar.selectbox(
             'Text Position:',
             ('Top Left', 'Top Right', 'Top Center','Bottom Left', 'Bottom Right','Bottom Center' ,'Center')
