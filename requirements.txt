@@ -1,0 +1,4 @@
+streamlit
+Pillow
+clarifai-grpc
+python-dotenv
