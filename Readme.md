@@ -7,7 +7,6 @@ Welcome to the PoeticaPic project! We're excited to have you contribute to our m
 - [Features](#features)
 - [Live Demo](#live-demo)
 - [Contribution Guidelines](#contribution-guidelines)
-- [Examples](#examples)
 - [License](#license)
 
 ## Introduction
