@@ -27,8 +27,8 @@ In today's digital age, capturing and sharing memories through images has become
 6. **Artistic Presentation**: The generated text is elegantly incorporated into the image, resulting in a visually pleasing design that encapsulates both the image and the accompanying narrative.
 
 ## Live Demo
-Curious to see PoeticaPic in action? Check out our [Live Demo](https://www.poeticapic-demo.com) to experience firsthand how your images can be transformed into beautiful memories.
-
+Curious to see PoeticaPic in action? Check out our [Live Demo](https://clarifai.com/umar05/my-first-application-ryesqk/installed_module_versions/poetica-prod-v1) to experience firsthand how your images can be transformed into beautiful memories. 
+**Note: YOU MUST LOGIN TO CLARIFY TO ACCESS THE APPLICATION**
 ## Contribution Guidelines
 We value and appreciate your contributions to PoeticaPic. If you'd like to enhance the project or fix any issues, please follow these steps:
 1. Fork the repository.
@@ -36,15 +36,6 @@ We value and appreciate your contributions to PoeticaPic. If you'd like to enhan
 3. Make your changes and enhancements.
 4. Test thoroughly.
 5. Submit a pull request explaining your changes in detail.
-
-## Examples
-![Example 1](examples/example1.png)
-*Image: A serene landscape with a sunset horizon.*
-*Generated Text: "Beneath the painted sky, nature whispers its evening lullaby, where sunsets and dreams embrace."
-
-![Example 2](examples/example2.png)
-*Image: A bustling cityscape with vibrant lights.*
-*Generated Text: "In the heart of urban symphony, city lights dance in joyful harmony, creating a tapestry of dreams."
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
